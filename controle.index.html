@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Equipamentos - Lucy Franco</title>
+  <style>
+    :root {
+      --bg-color: #0d1b2a;
+      --card-bg: #1b263b;
+      --input-bg: #0d1b2a;
+      --text-main: #e0e1dd;
+      --cyan: #00f5d4;
+      --orange: #ff9f1c;
+      --border-color: #415a77;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      color: #778da9;
+      margin-top: 2px;
+    }
+
+    /* Card General */
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    /* Inventário Cards */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .inv-item {
+      border-radius: 8px;
+      padding: 10px 5px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .inv-item.cyan { border: 1px solid var(--cyan); }
+    .inv-item.orange { border: 1px solid var(--orange); }
+    .inv-item.purple { border: 1px solid #9d4edd; }
+
+    .inv-title {
+      font-size: 0.65rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .inv-item.cyan .inv-title { color: var(--cyan); }
+    .inv-item.orange .inv-title { color: var(--orange); }
+    .inv-item.purple .inv-title { color: #c77dff; }
+
+    .inv-count {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #a0aec0;
+      margin-bottom: 6px;
+    }
+
+    .btn-select-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-option {
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .btn-option.selected {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 245, 212, 0.05);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    input[type="text"], input[type="number"], input[type="password"] {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    input::placeholder {
+      color: #4a5568;
+    }
+
+    /* Action Buttons */
+    .btn-orange {
+      width: 100%;
+      background: var(--orange);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-cyan {
+      width: 100%;
+      background: var(--cyan);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Retiradas Ativas */
+    .empty-msg {
+      font-size: 0.85rem;
+      color: #778da9;
+      font-style: italic;
+    }
+
+    /* Admin Footer */
+    .admin-desc {
+      font-size: 0.85rem;
+      color: #a0aec0;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .footer-text {
+      text-align: center;
+      font-size: 0.7rem;
+      color: #4a5568;
+      margin-top: 10px;
+    }
+
+    /* Modais e Histórico */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      padding: 20px;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>📋 Controle de Equipamentos</h1>
+      <p>E.E. "Lucy Franco"</p>
+    </header>
+
+    <!-- Inventário -->
+    <div class="card">
+      <div class="card-title">📦 Inventário</div>
+      <div class="inventory-grid">
+        <div class="inv-item cyan">
+          <div class="inv-title">CHROMEBOOK</div>
+          <div class="inv-count"><span id="cb-disp">37</span> / 37</div>
+        </div>
+        <div class="inv-item orange">
+          <div class="inv-title">POSITIVO</div>
+          <div class="inv-count"><span id="pos-disp">52</span> / 52</div>
+        </div>
+        <div class="inv-item purple">
+          <div class="inv-title">TABLET</div>
+          <div class="inv-count"><span id="tab-disp">33</span> / 33</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Novo Registro -->
+    <div class="card">
+      <div class="card-title">✍️ Novo Registro</div>
+      
+      <div class="form-group">
+        <label>Tipo de Equipamento:</label>
+        <div class="btn-select-group">
+          <button class="btn-option" onclick="selectEquip(this, 'Chromebook')">1 - Chromebook</button>
+          <button class="btn-option" onclick="selectEquip(this, 'Positivo')">2 - Positivo</button>
+          <button class="btn-option" onclick="selectEquip(this, 'Tablet')">3 - Tablet</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Quantidade:</label>
+        <input type="number" id="qtd" placeholder="Ex: 20">
+      </div>
+
+      <div class="form-group">
+        <label>Professor Responsável:</label>
+        <input type="text" id="prof" placeholder="Nome completo">
+      </div>
+
+      <div class="form-group">
+        <label>Período:</label>
+        <div class="btn-select-group grid-2">
+          <button class="btn-option" onclick="selectPeriodo(this, 'Manhã')">☀️ Manhã</button>
+          <button class="btn-option" onclick="selectPeriodo(this, 'Tarde')">🌤️ Tarde</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Aula (Selecione até 2):</label>
+        <div class="grid-3">
+          <button class="btn-option btn-aula" onclick="selectAula(this, '1ª')">1ª</button>
+          <button class="btn-option btn-aula" onclick="selectAula(this, '2ª')">2ª</button>
+          <button class="btn-option btn-aula" onclick="selectAula(this, '3ª')">3ª</button>
+          <button class="btn-option btn-aula" onclick="selectAula(this, '4ª')">4ª</button>
+          <button class="btn-option btn-aula" onclick="selectAula(this, '5ª')">5ª</button>
+          <button class="btn-option btn-aula" onclick="selectAula(this, '6ª')">6ª</button>
+        </div>
+      </div>
+
+      <button class="btn-orange" onclick="registrar('Retirada')">📥 REGISTRAR RETIRADA</button>
+      <button class="btn-cyan" onclick="registrar('Devolução')">📤 REGISTRAR DEVOLUÇÃO</button>
+    </div>
+
+    <!-- Retiradas Ativas -->
+    <div class="card">
+      <div class="card-title">📥 Retiradas Ativas (Aguardando Devolução)</div>
+      <p id="empty-active-msg" class="empty-msg">✅ Nenhuma retirada ativa no momento.</p>
+      <div id="active-list"></div>
+    </div>
+
+    <!-- Área Administrativa -->
+    <div class="card">
+      <div class="card-title" style="justify-content: center;">🔒 Área Administrativa</div>
+      <p class="admin-desc">Apenas administradores podem visualizar o histórico completo.</p>
+      <button class="btn-orange" onclick="abrirAdmin()">🔑 ACESSAR COMO ADMINISTRADOR</button>
+    </div>
+
+    <div class="footer-text">
+      © 2026 - Sistema de Controle de Equipamentos
+    </div>
+  </div>
+
+  <!-- Modal Histórico / Senha -->
+  <div id="modal-admin" class="modal">
+    <div class="modal-content">
+      <div id="login-admin">
+        <h3 style="color: var(--cyan); margin-bottom: 10px;">Acesso Restrito</h3>
+        <p style="font-size: 0.85rem; margin-bottom: 10px;">Digite a senha do administrador:</p>
+        <input type="password" id="senha-admin" placeholder="Senha">
+        <button class="btn-orange" onclick="autenticarAdmin()" style="margin-top: 10px;">Entrar</button>
+        <button class="btn-option" onclick="fecharModal()" style="width: 100%; margin-top: 5px;">Cancelar</button>
+      </div>
+
+      <div id="historico-admin" style="display: none;">
+        <h3 style="color: var(--cyan); margin-bottom: 10px;">Histórico Geral</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Tipo</th>
+              <th>Equip.</th>
+              <th>Qtd</th>
+              <th>Prof.</th>
+              <th>Aula</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-historico"></tbody>
+        </table>
+        <button class="btn-cyan" onclick="fecharModal()" style="margin-top: 15px;">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Quantidades totais fixas atualizadas
+    const TOTAIS = {
+      Chromebook: 37,
+      Positivo: 52,
+      Tablet: 33
+    };
+
+    let equipSelecionado = '';
+    let periodoSelecionado = '';
+    let aulasSelecionadas = [];
+
+    // Carrega as retiradas ativas e o inventário assim que a página abre
+    window.onload = function() {
+      atualizarInterface();
+    };
+
+    function selectEquip(el, valor) {
+      el.parentElement.querySelectorAll('.btn-option').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      equipSelecionado = valor;
+    }
+
+    function selectPeriodo(el, valor) {
+      el.parentElement.querySelectorAll('.btn-option').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      periodoSelecionado = valor;
+    }
+
+    function selectAula(el, valor) {
+      if (el.classList.contains('selected')) {
+        el.classList.remove('selected');
+        aulasSelecionadas = aulasSelecionadas.filter(a => a !== valor);
+        return;
+      }
+
+      if (aulasSelecionadas.length >= 2) {
+        alert('Você só pode selecionar no máximo 2 aulas!');
+        return;
+      }
+
+      el.classList.add('selected');
+      aulasSelecionadas.push(valor);
+    }
+
+    function registrar(tipo) {
+      const qtdInput = document.getElementById('qtd');
+      const profInput = document.getElementById('prof');
+      const qtd = parseInt(qtdInput.value);
+      const prof = profInput.value.trim();
+
+      if (!equipSelecionado || isNaN(qtd) || !prof || !periodoSelecionado || aulasSelecionadas.length === 0) {
+        alert('Por favor, preencha todos os campos!');
+        return;
+      }
+
+      if (qtd <= 0) {
+        alert('Informe uma quantidade válida!');
+        return;
+      }
+
+      const historico = JSON.parse(localStorage.getItem('lucy_historico') || '[]');
+
+      if (tipo === 'Devolução') {
+        let ativas = historico.filter(h => h.tipo === 'Retirada' && h.status === 'Ativa' && h.equip === equipSelecionado);
+        let totalEmprestado = ativas.reduce((acc, curr) => acc + parseInt(curr.qtd), 0);
+        
+        if (qtd > totalEmprestado) {
+          alert(`Erro: Você está tentando devolver ${qtd} ${equipSelecionado}, mas só existem ${totalEmprestado} retirados no momento!`);
+          return;
+        }
+
+        let restante = qtd;
+        for (let item of ativas) {
+          if (restante <= 0) break;
+          if (parseInt(item.qtd) <= restante) {
+            restante -= parseInt(item.qtd);
+            item.status = 'Devolvido';
+          } else {
+            item.qtd = parseInt(item.qtd) - restante;
+            restante = 0;
+          }
+        }
+      }
+
+      const aulasTexto = aulasSelecionadas.sort().join(', ');
+
+      const novoRegistro = {
+        id: Date.now(),
+        data: new Date().toLocaleString('pt-BR'),
+        tipo: tipo,
+        equip: equipSelecionado,
+        qtd: qtd,
+        prof: prof,
+        periodo: periodoSelecionado,
+        aula: aulasTexto,
+        status: tipo === 'Retirada' ? 'Ativa' : 'Finalizada'
+      };
+
+      historico.unshift(novoRegistro);
+      localStorage.setItem('lucy_historico', JSON.stringify(historico));
+
+      alert(`${tipo} registrada com sucesso!`);
+
+      limparFormulario();
+      atualizarInterface();
+    }
+
+    function limparFormulario() {
+      document.getElementById('qtd').value = '';
+      document.getElementById('prof').value = '';
+      equipSelecionado = '';
+      periodoSelecionado = '';
+      aulasSelecionadas = [];
+      document.querySelectorAll('.btn-option').forEach(b => b.classList.remove('selected'));
+    }
+
+    function devolverItem(id) {
+      const historico = JSON.parse(localStorage.getItem('lucy_historico') || '[]');
+      const item = historico.find(h => h.id === id);
+
+      if (item) {
+        item.status = 'Devolvido';
+
+        const devoluçaoReg = {
+          id: Date.now(),
+          data: new Date().toLocaleString('pt-BR'),
+          tipo: 'Devolução',
+          equip: item.equip,
+          qtd: item.qtd,
+          prof: item.prof,
+          periodo: item.periodo,
+          aula: item.aula,
+          status: 'Finalizada'
+        };
+
+        historico.unshift(devoluçãoReg);
+        localStorage.setItem('lucy_historico', JSON.stringify(historico));
+
+        alert(`Devolução de ${item.qtd}x ${item.equip} registrada!`);
+        atualizarInterface();
+      }
+    }
+
+    function atualizarInterface() {
+      const historico = JSON.parse(localStorage.getItem('lucy_historico') || '[]');
+      const ativas = historico.filter(h => h.tipo === 'Retirada' && h.status === 'Ativa');
+
+      const activeList = document.getElementById('active-list');
+      const emptyMsg = document.getElementById('empty-active-msg');
+
+      activeList.innerHTML = '';
+
+      if (ativas.length === 0) {
+        emptyMsg.style.display = 'block';
+      } else {
+        emptyMsg.style.display = 'none';
+
+        ativas.forEach(item => {
+          const card = document.createElement('div');
+          card.style.cssText = `
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          `;
+
+          card.innerHTML = `
+            <div>
+              <strong style="color: var(--orange);">${item.qtd}x ${item.equip}</strong> - ${item.prof}<br>
+              <small style="color: #a0aec0;">${item.periodo} | ${item.aula} Aula (${item.data})</small>
+            </div>
+            <button onclick="devolverItem(${item.id})" style="
+              background: var(--cyan);
+              border: none;
+              padding: 6px 10px;
+              border-radius: 6px;
+              font-weight: bold;
+              font-size: 0.75rem;
+              cursor: pointer;
+              color: #000;
+            ">Devolver</button>
+          `;
+
+          activeList.appendChild(card);
+        });
+      }
+
+      let emUso = { Chromebook: 0, Positivo: 0, Tablet: 0 };
+      ativas.forEach(item => {
+        if (emUso[item.equip] !== undefined) {
+          emUso[item.equip] += parseInt(item.qtd);
+        }
+      });
+
+      document.getElementById('cb-disp').textContent = TOTAIS.Chromebook - emUso.Chromebook;
+      document.getElementById('pos-disp').textContent = TOTAIS.Positivo - emUso.Positivo;
+      document.getElementById('tab-disp').textContent = TOTAIS.Tablet - emUso.Tablet;
+    }
+
+    function abrirAdmin() {
+      document.getElementById('modal-admin').style.display = 'flex';
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-admin').style.display = 'none';
+      document.getElementById('login-admin').style.display = 'block';
+      document.getElementById('historico-admin').style.display = 'none';
+      document.getElementById('senha-admin').value = '';
+    }
+
+    function autenticarAdmin() {
+      const senha = document.getElementById('senha-admin').value;
+      if (senha === "lucy@1406") {
+        document.getElementById('login-admin').style.display = 'none';
+        document.getElementById('historico-admin').style.display = 'block';
+        carregarTabelaHistorico();
+      } else {
+        alert('Senha incorreta!');
+      }
+    }
+
+    function carregarTabelaHistorico() {
+      const historico = JSON.parse(localStorage.getItem('lucy_historico') || '[]');
+      const tbody = document.getElementById('tabela-historico');
+      tbody.innerHTML = '';
+
+      historico.forEach(h => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${h.data}</td>
+          <td>${h.tipo}</td>
+          <td>${h.equip}</td>
+          <td>${h.qtd}</td>
+          <td>${h.prof}</td>
+          <td>${h.aula}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
